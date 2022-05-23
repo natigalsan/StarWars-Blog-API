@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets
+from models import db, User, People, Planets, Fav_people
 #from models import Person
 
 app = Flask(__name__)
@@ -106,6 +106,26 @@ def get_one_planets(id):
     oneplanets = Planets.query.get(id).serialize()
 
     return jsonify({"resultado": oneplanets})
+
+
+# -------------------------------------------------------------------
+# a traves de id vamos a agregar a favoritos
+# tenemos que hacerlo con POST
+@app.route("/favorite/people/<int:people_id>", methods = ['POST'])
+def add_fav_people(people_id):
+    onepeople = People.query.get(people_id)
+    if onepeople: 
+        new = Fav_people()
+        new.user_id = 1
+        new.people_id = people_id
+        # agrego el registro a la base de datos: 
+        db.session.add (new)    
+        # guardar los cambios realizados: 
+        db.session.commit()
+        
+        return jsonify({"resultado": "estas en un metodo POST"})
+    else: 
+        return jsonify({"resultado": "personaje no existe"})
 
 
 
