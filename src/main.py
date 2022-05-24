@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Fav_people
+from models import db, User, People, Planets, Fav_people, Fav_planets
 #from models import Person
 
 app = Flask(__name__)
@@ -73,7 +73,7 @@ def get_user():
     return jsonify({"resultado": alluser})
 
 
-# -----------------------------------------------------------------------------------------------------------------------------------------------
+# --------------GET PEOPLE AND PLANETS---------------------------------------------------------------------------------------------------------------------------------
 # CÓMO CONSEGUIR DESDE LA URL DE LA WEB  UN PERSONAJE AÑADIDO O PLANETA AÑADIDO COLOCANDO /PEOPLE/1  Y /PLANETS/2  X EJEMPLO Y ME SALE LA SERIALIZE() CON LOS DATOS
 @app.route('/people/<int:id>', methods=['GET'])
 # esta parte es para buscar un personaje agregado de mi lista desde la url añadiendo /people/1 --> y me sale luke skwalkler
@@ -108,7 +108,7 @@ def get_one_planets(id):
     return jsonify({"resultado": oneplanets})
 
 
-# -------------------------------------------------------------------
+# ------------POST DE PEOPLE AND PLANETS-------------------------------------------------------
 # a traves de id vamos a agregar a favoritos
 # tenemos que hacerlo con POST
 @app.route("/favorite/people/<int:people_id>", methods = ['POST'])
@@ -127,6 +127,58 @@ def add_fav_people(people_id):
     else: 
         return jsonify({"resultado": "personaje no existe"})
 
+
+@app.route("/favorite/planets/<int:planets_id>", methods = ['POST'])
+def add_fav_planets(planets_id):
+    oneplanets = Planets.query.get(planets_id)
+    if oneplanets: 
+        new = Fav_planets()
+        new.user_id = 1
+        new.planets_id = planets_id
+        # agrego el registro a la base de datos: 
+        db.session.add (new)    
+        # guardar los cambios realizados: 
+        db.session.commit()
+        
+        return jsonify({"resultado": "estas en un metodo POST"})
+    else: 
+        return jsonify({"resultado": "planetas no existe"})
+
+
+# -------------DELETE FAV---//---- PEOPLE AND PLANETS------------------------------------------------------------------------
+
+@app.route("/favorite/people/<int:people_id>", methods = ['DELETE'])
+def delete_fav_people(people_id):
+    deletePeople = People.query.get(people_id)
+    if deletePeople: 
+        new = Fav_people()
+        new.user_id = 1
+        new.people_id = people_id
+        # agrego el registro a la base de datos: 
+        db.session.remove (new)    
+        # guardar los cambios realizados: 
+        db.session.commit()
+        
+        return jsonify({"resultado": "estas en un metodo DELETE"})
+    else: 
+        return jsonify({"resultado": "personaje no existe"})
+
+
+@app.route("/favorite/planets/<int:planets_id>", methods = ['DELETE'])
+def delete_fav_planets(planets_id):
+    deletePlanets = Planets.query.get(planets_id)
+    if deletePlanets: 
+        new = Fav_planets()
+        new.user_id = 1
+        new.planets_id = planets_id
+        # agrego el registro a la base de datos: 
+        db.session.remove (new)    
+        # guardar los cambios realizados: 
+        db.session.commit()
+        
+        return jsonify({"resultado": "estas en un metodo DELETE"})
+    else: 
+        return jsonify({"resultado": "planetas no existe"})
 
 
 # this only runs if `$ python src/main.py` is executed
